@@ -269,6 +269,10 @@ std::filesystem::path FindLibrary(std::string library_name, std::optional<std::f
     {
         std::filesystem::path library_path(library_name);
         if (library_path.is_absolute() && std::filesystem::exists(library_path)) {
+            std::filesystem::path stub(library_path.concat(".stub"));
+            if (std::filesystem::exists(stub)) {
+                return stub;
+            }
             return library_path;
         }
     }
@@ -303,6 +307,11 @@ std::filesystem::path FindLibrary(std::string library_name, std::optional<std::f
         for (const auto& entry : std::filesystem::directory_iterator(d)) {
             LOG(INFO) << LOG_KEY(entry.path().filename().string()) << LOG_KEY(searching_filename);
             if (entry.path().filename().string().starts_with(searching_filename)) {
+                std::filesystem::path stub(entry.path().filename().string().append(".stub"));
+                if (std::filesystem::exists(stub)) {
+                    LOG(INFO) << LOG_KEY(stub);
+                    return stub;
+                }
                 LOG(INFO) << LOG_KEY(entry.path());
                 return entry.path();
             }
